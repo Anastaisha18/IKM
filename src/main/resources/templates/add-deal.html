@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Добавить сделку</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="container">
+    <div class="form-container">
+        <h2 class="form-title">🤝 Добавить сделку</h2>
+
+        <a href="/deals" class="btn btn-outline-secondary mb-4">← Назад к списку</a>
+
+        <form th:action="@{/deals}" method="post">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label required">Название сделки:</label>
+                    <input type="text" class="form-control" name="dealName" required
+                           placeholder="Например: Разработка сайта">
+                    <div class="form-text">Обязательное поле</div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label required">Клиент:</label>
+                    <select class="form-select" name="clientId" required>
+                        <option value="" selected disabled>Выберите клиента</option>
+                        <option th:each="client : ${clients}"
+                                th:value="${client.id}"
+                                th:text="${client.companyName}">
+                        </option>
+                    </select>
+                    <div class="form-text">Обязательное поле</div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label required">Сумма (руб):</label>
+                    <input type="number" class="form-control" name="amount"
+                           step="0.01" min="1" required placeholder="100000.00">
+                    <div class="form-text">Обязательное поле</div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label required">Стадия:</label>
+                    <select class="form-select" name="stage" required>
+                        <option value="" selected disabled>Выберите стадию</option>
+                        <option value="Переговоры">Переговоры</option>
+                        <option value="В работе">В работе</option>
+                        <option value="Оплачена">Оплачена</option>
+                        <option value="Закрыта">Закрыта</option>
+                        <option value="Отменена">Отменена</option>
+                    </select>
+                    <div class="form-text">Обязательное поле</div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label required">Ответственный:</label>
+                    <select class="form-select" name="responsibleUserId" required>
+                        <option value="" selected disabled>Выберите менеджера</option>
+                        <option th:each="user : ${users}"
+                                th:value="${user.id}"
+                                th:text="${user.lastName + ' ' + user.firstName}">
+                        </option>
+                    </select>
+                    <div class="form-text">Обязательное поле</div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label required">Дедлайн:</label>
+                    <input type="date" class="form-control" name="deadlineDate" required>
+                    <div class="form-text">Обязательное поле</div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <button type="submit" class="btn btn-success px-4">
+                    <i class="bi bi-check-circle"></i> Сохранить сделку
+                </button>
+                <a href="/deals" class="btn btn-secondary">Отмена</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+</body>
+</html>

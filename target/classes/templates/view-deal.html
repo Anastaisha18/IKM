@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>CRM - Просмотр сделки</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+</head>
+<body>
+<header class="header">
+    <h1><i class="bi bi-cash-coin"></i> Просмотр сделки</h1>
+    <p class="subtitle">Детальная информация о сделке</p>
+</header>
+
+<nav class="main-nav">
+    <ul class="nav-menu">
+        <li class="nav-item">
+            <a href="/users" class="nav-link">
+                <i class="bi bi-people"></i> Пользователи
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="/clients" class="nav-link">
+                <i class="bi bi-building"></i> Клиенты
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="/deals" class="nav-link">
+                <i class="bi bi-cash-coin"></i> Сделки
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="/" class="nav-link">
+                <i class="bi bi-house"></i> На главную
+            </a>
+        </li>
+    </ul>
+</nav>
+
+<div class="view-container">
+    <div class="entity-card" th:if="${deal != null}">
+        <div class="entity-header">
+            <div>
+                <h2 th:text="${deal.dealName}"></h2>
+                <div class="status-row">
+                    <span class="stage-badge"
+                          th:classappend="${deal.stage == 'Закрыта' ? 'stage-completed' :
+                                          deal.stage == 'В работе' ? 'stage-contract' :
+                                          deal.stage == 'Переговоры' ? 'stage-negotiation' :
+                                          deal.stage == 'Оплачена' ? 'bg-info' : 'stage-lost'}"
+                          th:text="${deal.stage}">
+                    </span>
+                    <span class="deal-amount" th:text="${deal.amount != null ? #numbers.formatDecimal(deal.amount, 0, 'COMMA', 2, 'POINT') + ' ₽' : 'Не указана'}"></span>
+                </div>
+            </div>
+            <div class="entity-actions">
+                <a th:href="@{/deals/edit/{id}(id=${deal.id})}" class="btn btn-warning">
+                    <i class="bi bi-pencil"></i> Редактировать
+                </a>
+                <a th:href="@{/deals}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Назад
+                </a>
+            </div>
+        </div>
+
+        <div class="entity-details">
+            <div class="detail-row">
+                <span class="detail-label">ID:</span>
+                <span class="detail-value" th:text="${deal.id}"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Название сделки:</span>
+                <span class="detail-value" th:text="${deal.dealName}"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Клиент:</span>
+                <span class="detail-value">
+                    <a th:if="${deal.client}"
+                       th:href="@{/clients/view/{id}(id=${deal.client.id})}"
+                       th:text="${deal.client.companyName}">
+                    </a>
+                    <span th:unless="${deal.client}" class="no-data">Не указан</span>
+                </span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Сумма:</span>
+                <span class="detail-value deal-amount" th:text="${deal.amount != null ? #numbers.formatDecimal(deal.amount, 0, 'COMMA', 2, 'POINT') + ' ₽' : 'Не указана'}"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Ответственный:</span>
+                <span class="detail-value">
+                    <a th:if="${deal.responsibleUser}"
+                       th:href="@{/users/view/{id}(id=${deal.responsibleUser.id})}"
+                       th:text="${deal.responsibleUser.lastName} + ' ' + ${deal.responsibleUser.firstName}">
+                    </a>
+                    <span th:unless="${deal.responsibleUser}" class="no-data">Не назначен</span>
+                </span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Стадия:</span>
+                <span class="detail-value">
+                    <span class="stage-badge"
+                          th:classappend="${deal.stage == 'Закрыта' ? 'stage-completed' :
+                                          deal.stage == 'В работе' ? 'stage-contract' :
+                                          deal.stage == 'Переговоры' ? 'stage-negotiation' :
+                                          deal.stage == 'Оплачена' ? 'bg-info' : 'stage-lost'}"
+                          th:text="${deal.stage}">
+                    </span>
+                </span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Дедлайн:</span>
+                <span class="detail-value">
+                    <span th:if="${deal.deadlineDate != null}">
+            <!-- Выводим через #temporals.format -->
+                        <span th:text="${#temporals.format(deal.deadlineDate, 'dd.MM.yyyy')}"></span>
+                        <span th:if="${deal.deadlineDate.isBefore(T(java.time.LocalDate).now())}"
+                  class="status-badge status-inactive">Просрочено</span>
+                    </span>
+                    <span th:unless="${deal.deadlineDate != null}" class="no-data">Не указан</span>
+                </span>
+            </div>
+
+            <div class="detail-row" th:if="${deal.createdDate != null}">
+                <span class="detail-label">Дата создания:</span>
+                <span class="detail-value" th:text="${#temporals.format(deal.createdDate, 'dd.MM.yyyy HH:mm')}"></span>
+            </div>
+        </div>
+
+        <div class="entity-actions">
+            <a th:href="@{/deals/edit/{id}(id=${deal.id})}" class="btn btn-warning">
+                <i class="bi bi-pencil"></i> Редактировать
+            </a>
+            <a th:href="@{/deals/delete/{id}(id=${deal.id})}"
+               class="btn btn-danger"
+               onclick="return confirm('Удалить сделку?')">
+                <i class="bi bi-trash"></i> Удалить
+            </a>
+            <a th:href="@{/deals}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Назад к списку
+            </a>
+        </div>
+    </div>
+
+    <div th:if="${deal == null}" class="empty-state">
+        <div class="empty-icon">
+            <i class="bi bi-exclamation-triangle"></i>
+        </div>
+        <h2>Сделка не найдена</h2>
+        <p>Запрашиваемая сделка не существует или была удалена</p>
+        <a href="/deals" class="btn btn-primary">
+            <i class="bi bi-arrow-left"></i> Вернуться к списку
+        </a>
+    </div>
+</div>
+
+<footer>
+    <p>CRM System v1.0 | © 2025</p>
+</footer>
+</body>
+</html>

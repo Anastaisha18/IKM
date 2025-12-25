@@ -1,0 +1,39 @@
+package com.crm.controller;
+
+import com.crm.repository.UserRepository;
+import com.crm.repository.ClientRepository;
+import com.crm.repository.DealRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+
+@Controller
+public class HomeController {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private ClientRepository clientRepository;
+
+    @Autowired
+    private DealRepository dealRepository;
+
+    @GetMapping("/")
+    public String home(Model model) {
+        // Добавляем статистику для дашборда
+        model.addAttribute("userCount", userRepository.count());
+        model.addAttribute("clientCount", clientRepository.count());
+        model.addAttribute("dealCount", dealRepository.count());
+        return "dashboard";
+    }
+
+    @GetMapping("/dashboard")
+    public String dashboard(Model model) {
+        model.addAttribute("userCount", userRepository.count());
+        model.addAttribute("clientCount", clientRepository.count());
+        model.addAttribute("dealCount", dealRepository.count());
+        return "dashboard";
+    }
+}

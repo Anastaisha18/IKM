@@ -100,4 +100,5 @@ public class Deal {
     public void setDeadlineDate(LocalDate deadlineDate) {
         this.deadlineDate = deadlineDate;
     }
+
 }

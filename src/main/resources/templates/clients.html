@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>CRM - Клиенты</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+</head>
+<body>
+<header class="header">
+    <h1><i class="bi bi-building"></i> Управление клиентами CRM</h1>
+    <p class="subtitle">Работа с клиентской базой</p>
+</header>
+
+<nav class="main-nav">
+    <ul class="nav-menu">
+        <li class="nav-item">
+            <a href="/users" class="nav-link">
+                <i class="bi bi-people"></i> Сотрудники
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="/clients" class="nav-link active">
+                <i class="bi bi-building"></i> Клиенты
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="/deals" class="nav-link">
+                <i class="bi bi-cash-coin"></i> Сделки
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="/" class="nav-link">
+                <i class="bi bi-house"></i> На главную
+            </a>
+        </li>
+    </ul>
+</nav>
+
+<div class="action-panel">
+    <!-- ФОРМА ФИЛЬТРАЦИИ ПО СТАТУСУ -->
+    <form th:action="@{/clients}" method="get" class="search-form">
+        <select name="statusFilter" class="search-select" onchange="this.form.submit()">
+            <option value="">Все статусы</option>
+            <!-- ТОЛЬКО 3 СТАТУСА -->
+            <option value="Лид" th:selected="${currentFilter == 'Лид'}">Лид</option>
+            <option value="Активный" th:selected="${currentFilter == 'Активный'}">Активный</option>
+            <option value="Неактивный" th:selected="${currentFilter == 'Неактивный'}">Неактивный</option>
+        </select>
+        <input type="text" class="search-input" name="search" placeholder="Поиск клиентов..."
+               th:value="${searchParam}">
+        <button type="submit" class="btn btn-primary">Найти</button>
+    </form>
+    <a href="/clients/new" class="btn btn-success">
+        <i class="bi bi-plus-circle"></i> Добавить клиента
+    </a>
+</div>
+
+<div class="info-bar">
+    <span>Всего клиентов: <strong th:text="${#lists.size(clients)}">0</strong></span>
+    <span th:if="${currentFilter != null}">
+        | Фильтр: <strong th:text="${currentFilter}"></strong>
+    </span>
+    <!-- ИСПРАВЛЕНА ОШИБКА: используем || вместо or и проверяем на null -->
+    <a th:href="@{/clients}" th:if="${currentFilter != null || searchParam != null}"
+       class="btn btn-sm btn-outline-secondary ms-2">
+        Сбросить фильтр
+    </a>
+</div>
+
+<div class="table-container">
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Компания</th>
+            <th>Статус</th>
+            <th>Ответственный</th>
+            <th>Телефон</th>
+            <th>Email</th>
+            <th class="actions-column">Действия</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="client : ${clients}" th:if="${clients != null and !clients.empty}">
+            <td><span class="id-badge" th:text="${client.id}"></span></td>
+            <td th:text="${client.companyName}"></td>
+            <td>
+                <!-- ОБНОВЛЕННЫЕ БЭЙДЖИ СТАТУСОВ -->
+                <span class="status-badge"
+                      th:classappend="${client.status == 'Активный' ? 'status-active' :
+                                      client.status == 'Лид' ? 'status-lead' : 'status-inactive'}"
+                      th:text="${client.status}">
+                </span>
+            </td>
+            <td>
+                <span th:if="${client.responsibleUser != null}"
+                      th:text="${client.responsibleUser.lastName + ' ' + client.responsibleUser.firstName}">
+                </span>
+                <span th:unless="${client.responsibleUser != null}" class="text-muted">
+                    Не назначен
+                </span>
+            </td>
+            <td>
+                <div class="contact-info" th:if="${client.phone != null and client.phone != ''}">
+                    <i class="bi bi-telephone contact-icon"></i>
+                    <span th:text="${client.phone}"></span>
+                </div>
+                <span th:unless="${client.phone != null and client.phone != ''}" class="text-muted">
+                    Не указан
+                </span>
+            </td>
+            <td>
+                <div class="contact-info" th:if="${client.email != null and client.email != ''}">
+                    <i class="bi bi-envelope contact-icon"></i>
+                    <a th:href="'mailto:' + ${client.email}" th:text="${client.email}"></a>
+                </div>
+                <span th:unless="${client.email != null and client.email != ''}" class="text-muted">
+                    Не указан
+                </span>
+            </td>
+            <td class="actions-column">
+                <div class="actions">
+                    <a th:href="@{/clients/view/{id}(id=${client.id})}"
+                       class="btn btn-info btn-small" title="Просмотр">
+                        <i class="bi bi-eye"></i>
+                    </a>
+                    <a th:href="@{/clients/edit/{id}(id=${client.id})}"
+                       class="btn btn-warning btn-small" title="Редактировать">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                    <a th:href="@{/clients/delete/{id}(id=${client.id})}"
+                       class="btn btn-danger btn-small" title="Удалить"
+                       onclick="return confirm('Удалить клиента?')">
+                        <i class="bi bi-trash"></i>
+                    </a>
+                </div>
+            </td>
+        </tr>
+        <tr th:if="${clients == null or clients.empty}">
+            <td colspan="7">
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="bi bi-building"></i>
+                    </div>
+                    <h2>Клиенты не найдены</h2>
+                    <!-- ЕЩЕ ОДНА ИСПРАВЛЕННАЯ ОШИБКА -->
+                    <p th:if="${currentFilter != null or searchParam != null}">
+                        Попробуйте изменить параметры поиска
+                    </p>
+                    <p th:unless="${currentFilter != null and searchParam != null}">
+                        Добавьте первого клиента в систему
+                    </p>
+                    <a href="/clients/new" class="btn btn-success">
+                        <i class="bi bi-plus-circle"></i> Добавить клиента
+                    </a>
+                </div>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<footer style="text-align: center;">
+    <p>CRM System v1.0 | © 2025</p>
+</footer>
+</body>
+</html>
